@@ -1,11 +1,25 @@
 from flask import Flask, jsonify, request
+from bs4 import BeautifulSoup as bs
+import requests
+
+import utils
+import miniseo
 
 app = Flask(__name__)
 
 @app.route('/seo')
 def scrap_site():
-    site = request.args.get('site', None)
-    if (site is None):
-        return jsonify({ "status": 401, "data": "", "errors": ["Please provide a site"] })
+    try:
+        url = request.args.get('url', None)
+        valid_url = utils.validate_url(url)
+        if not valid_url:
+            return jsonify({ "status": 401, "data": "", "errors": ["Error on the url."] })
 
-    return jsonify({ "status": 200, "data": site, "errors": [] })
+        site = requests.get(url)
+        soup = bs(site.text, 'html.parser')
+        results = miniseo.collect(soup)
+
+        return jsonify({ "status": 200, "data": results, "errors": [] })
+
+    except:
+        return jsonify({ "status": 500, "data": "", "errors": ["Server error"] })
