@@ -12,5 +12,5 @@ def validate_url(url):
     """
     result = urlparse(url)
     return (all([result.scheme, result.netloc, result.path])
-        and len(final_url.netloc.split(".")) > 1)
+        and len(result.netloc.split(".")) > 1)
 

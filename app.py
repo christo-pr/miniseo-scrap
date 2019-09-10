@@ -21,5 +21,6 @@ def scrap_site():
 
         return jsonify({ "status": 200, "data": results, "errors": [] })
 
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({ "status": 500, "data": "", "errors": ["Server error"] })
