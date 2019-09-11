@@ -1,3 +1,6 @@
+import re
+from collections import Counter
+
 def collect(site):
     """
         Args: site
@@ -22,7 +25,7 @@ def _get_head_results(site):
         * Canonical tag
     """
     title = site.title
-    meta_description = site.find("meta", {"name":"description"})
+    meta_description = site.find("meta", { "name":"description" })
     canonical_tag = site.find("link", rel="canonical")
 
     return {
@@ -34,7 +37,7 @@ def _get_head_results(site):
         "meta": [],
         "points": {
             "total": 3,
-            "passed": _calculate_points(title, meta_description, canonical_tag)
+            "passed": len(list(filter(bool, [title, meta_description, canonical_tag])))
         }
     }
 
@@ -45,9 +48,7 @@ def _get_links_results(site):
         * no follow count
     """
     links = site.find_all('a')
-    no_follow_links = None
-    if links:
-        no_follow_links = list(filter(lambda l: "nofollow" in l.get('rel', ""), links))
+    no_follow_links = list(filter(lambda l: "nofollow" in l.get('rel', ""), links if links else []))
 
     return {
         "values": {},
@@ -56,8 +57,8 @@ def _get_links_results(site):
             { "nofollow links count": len(no_follow_links) }
         ],
         "points": {
-            "total": 2,
-            "passed": _calculate_points(links, len(no_follow_links))
+            "total": 1,
+            "passed": len(no_follow_links)
         }
     }
 
@@ -66,17 +67,20 @@ def _get_og_results(site):
         This method will search for og tags:
         * title
         * type
-        * type
         * description
         * image
+        * url
     """
+    og_tags = site.find_all("meta", { "property": re.compile("og:*")}, limit=5)
+    values = { tag["property"]: tag["content"] for tag in og_tags }
+
     return {
-        "values": {},
-        "meta": [
-            { "links count": "" },
-            { "nofollow links count": "" }
-        ],
-        "points": ""
+        "values": values,
+        "meta": [],
+        "points": {
+            "total": 5,
+            "passed": len(og_tags)
+        }
     }
 
 def _get_headers_tags_results(site):
@@ -84,16 +88,19 @@ def _get_headers_tags_results(site):
         This method will search:
         * h1...h6 tags count
     """
+    headers = site.find_all(["h1", "h2", "h3", "h4", "h5", "h6"])
+    h1_tag = site.find('h1')
+    headers_counter = Counter(list(map(lambda h:  h.name, headers)))
+
     return {
         "values": {
-            "h1": "",
-            # ...
+            "h1": h1_tag.text if h1_tag else "",
         },
-        "meta": [
-            { "h1 count": "" },
-            # ..
-        ],
-        "points": ""
+        "meta": [{tag: count} for tag, count in headers_counter.most_common()],
+        "points": {
+            "total": 1,
+            "passed": 1 if headers_counter["h1"] > 0 and headers_counter["h1"] < 2 else 0
+        }
     }
 
 def _get_images_results(site):
@@ -102,20 +109,17 @@ def _get_images_results(site):
         * images count
         * images with alt attr count
     """
+    images = site.find_all('img')
+    images_count = len(images)
+    images_alt_count = len(list(filter(lambda i: i.get('alt', False), images)))
     return {
         "values": {},
         "meta": [
-            { "images count": "" },
-            { "images alt count": "" }
+            { "images count": images_count },
+            { "images alt count": images_alt_count  }
         ],
-        "points": ""
+        "points": {
+            "total": images_count,
+            "passed": images_alt_count
+        }
     }
-
-
-def _calculate_points(*args):
-    """
-        This method will calculate the points based on the params
-        by just checking if the given param is not None
-    """
-
-    return len(list(filter(bool, args)))

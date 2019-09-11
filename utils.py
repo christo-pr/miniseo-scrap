@@ -1,4 +1,4 @@
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 def validate_url(url):
     """
@@ -10,7 +10,7 @@ def validate_url(url):
         http://www.cwi.nl:80/%7Eguido/Python.html
         scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html'
     """
-    result = urlparse(url)
+    result = urlparse(unquote(url))
     return (all([result.scheme, result.netloc, result.path])
         and len(result.netloc.split(".")) > 1)
 
