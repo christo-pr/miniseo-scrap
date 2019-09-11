@@ -7,10 +7,10 @@ import miniseo
 
 app = Flask(__name__)
 
-@app.route('/seo')
+@app.route('/seo', methods=['GET', 'POST'])
 def scrap_site():
     try:
-        url = request.args.get('url', '')
+        url = request.args.get('url', '') if request.method == "GET" else request.get_json().get('url', '')
         valid_url = utils.validate_url(url)
         if not valid_url:
             return jsonify({ "status": 401, "data": "", "errors": ["Error on the url."] })
