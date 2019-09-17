@@ -10,10 +10,19 @@ def collect(site):
     data = { "metrics": {} }
 
     data["metrics"]["head"] = _get_head_results(site)
+    data["metrics"]["head"]["display_name"] = "SEO Headers"
+
     data["metrics"]["links"] = _get_links_results(site)
+    data["metrics"]["links"]["display_name"] = "Links"
+
     data["metrics"]["og_tags"] = _get_og_results(site)
+    data["metrics"]["og_tags"]["display_name"] = "Open Graph Tags"
+
     data["metrics"]["headers_tags"] = _get_headers_tags_results(site)
+    data["metrics"]["headers_tags"]["display_name"] = "Hearders"
+
     data["metrics"]["images"] = _get_images_results(site)
+    data["metrics"]["images"]["display_name"] = "Images"
 
     return data
 
