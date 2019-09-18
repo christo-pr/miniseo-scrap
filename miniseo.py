@@ -1,4 +1,6 @@
 import re
+import random
+import string
 from collections import Counter
 
 def collect(site):
@@ -121,8 +123,9 @@ def _get_images_results(site):
     images = site.find_all('img')
     images_count = len(images)
     images_alt_count = len(list(filter(lambda i: i.get('alt', False), images)))
+    first_images = {img: src for img, src in map(lambda i: (i.get('alt', _get_random_name()), i.get('src', '')), images[:4])}
     return {
-        "values": {},
+        "values": first_images,
         "meta": [
             { "images count": images_count },
             { "images alt count": images_alt_count  }
@@ -132,3 +135,10 @@ def _get_images_results(site):
             "passed": images_alt_count
         }
     }
+
+def _get_random_name():
+    """
+        Generates a random string
+    """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(6))
