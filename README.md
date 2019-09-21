@@ -16,8 +16,11 @@ More info about seo:
 ## Installation
 
 1.- Git clone
+
 2.- Create your [virtual env](https://virtualenv.pypa.io/en/latest/)
+
 3.- Install all dependencies: `pip install -r requirements.txt`
+
 4.- Run the app: `FLASK_ENV=development flask run`
 
 You'll have a development server running on your `http://localhost:5000`. There's one endpoint only: `/seo` which accept one param: `url`
